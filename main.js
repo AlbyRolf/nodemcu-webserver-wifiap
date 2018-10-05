@@ -1,4 +1,6 @@
 var wifi=require('Wifi');
+var storage=require('Storage');
+
 // The last data that was POSTed to us
 var postData = {};
 
@@ -84,6 +86,8 @@ function handlePOST(req, callback) {
     console.log(postData);
     // do stuff with it!
     //
+    var result = storage.write('data', postData);
+    console.log(result?'Data Saved':'Failed To Save');
     //
     //
     // call our callback (to send the HTML result)
