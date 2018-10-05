@@ -1,4 +1,4 @@
-var wifi;
+var wifi=require('Wifi');
 // The last data that was POSTed to us
 var postData = {};
 
@@ -52,7 +52,7 @@ function onPageRequest(req, res) {
     // If we had a POST, handle the data we're being given
     if (
       req.method == "POST" &&
-      req.headers["Content-Type"] == "applicatio­n/x-www-form-urlencoded"
+      req.headers["Content-Type"] == "application/x-www-form-urlencoded"
     )
       handlePOST(req, function() {
         sendPage(res);
