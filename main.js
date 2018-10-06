@@ -134,10 +134,10 @@ function main() {
   storage.write("data", { s: "CLAVEL", p: "xxx", c: "xxx" });
   //scenario 3
   // incorrect ssid
-  //storage.write("data", {"s":"CLAVEL1", "p":"4157319535", "c":"xxx"});
+  storage.write("data", { s: "CLAVEL1", p: "4157319535", c: "xxx" });
   //scenario 4
   // correct data
-  //storage.write("data", {"s":"CLAVEL", "p":"4157319535", "c":"xxx"});
+  storage.write("data", { s: "CLAVEL", p: "4157319535", c: "xxx" });
 
   if (storage.read("data") === undefined) {
     startAP(function(err, result) {
@@ -147,8 +147,8 @@ function main() {
       startWebserver();
     });
   } else {
-    var config = storage.read("data");
-    wifiConnect(config.s, config.p, function() {
+    var config = storage.readJSON("data");
+    wifiConnect(config.s, config.p, function(err) {
       if (err) {
         return console.log(err);
       }
