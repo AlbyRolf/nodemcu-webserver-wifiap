@@ -161,6 +161,7 @@ function checkWifiStation() {
   var id = setInterval(function() {
     wifi.getDetails(function(res) {
       console.log("[checkWifiStation] ", res.status);
+      //status - off, connecting, wrong_password, no_ap_found, connect_fail, connected
       if (
         res.status == "no_ap_found" ||
         res.status == "wrong_password" ||
@@ -205,7 +206,7 @@ function main() {
       { password: config.p },
       function(err) {
         if (err) {
-          error(err);
+          reconfig(err);
         }
         console.log("[main] Station connected.");
       }
