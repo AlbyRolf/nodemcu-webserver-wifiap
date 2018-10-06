@@ -130,7 +130,7 @@ function main() {
   // storage.read('data') == undefined
   storage.erase("data");
 
-  if (storage.read("data") == undefined) {
+  if (storage.read("data") === undefined) {
     startAP(function(err, result) {
       if (err) {
         return console.log(err);
