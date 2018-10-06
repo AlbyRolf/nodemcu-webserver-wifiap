@@ -101,14 +101,47 @@ function startWebserver() {
     .listen(80);
 }
 
-function main() {
+
+function wifiConnect(ssid, password, cb) {
+  wifi.connect(ssid, { password: password }, function(err) {
+    if(err){
+      return cb(err)
+    }
+    console.log("Successfully ")
+    return cb(null,true)
+  });
+}
+
+function startAP(cb) {
   wifi.startAP("espruino-esp8266", {}, function(err) {
     if (err) {
-      return console.log(err);
+      return cb(err)
     }
-    startWebserver();
-    return console.log("Sucessfully started AP");
+    console.log("Successfully started AP");
+    return cb(null,true)
   });
+}
+
+function main() {
+  //scenario 1
+  // storage.read('data') == undefined
+  storage.erase('data')
+  
+  if (storage.read('data') == undefined) {
+    startAP( function(err,result) {
+      if (err) {
+        return console.log(err)
+      }
+      startWebserver();
+    })
+  } else {
+    var config = storage.read('data')
+    wifiConnect(config.s, config.p, function(){
+      if(err) {
+        return console.log(err)
+      }
+    })
+  }
 }
 
 main();
