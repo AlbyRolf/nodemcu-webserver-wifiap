@@ -109,7 +109,7 @@ function wifiConnect(ssid, password, cb) {
       if (err) {
         return cb(err);
       }
-      console.log("Successfully ");
+      console.log("Successfully connected.");
       return cb(null, true);
     }
   );
@@ -120,7 +120,7 @@ function startAP(cb) {
     if (err) {
       return cb(err);
     }
-    console.log("Successfully started AP");
+    console.log("Successfully started AP.");
     return cb(null, true);
   });
 }
@@ -128,7 +128,16 @@ function startAP(cb) {
 function main() {
   //scenario 1
   // storage.read('data') == undefined
-  storage.erase("data");
+  //storage.erase("data");
+  //scenario 2
+  // wrong password
+  storage.write("data", { s: "CLAVEL", p: "xxx", c: "xxx" });
+  //scenario 3
+  // incorrect ssid
+  //storage.write("data", {"s":"CLAVEL1", "p":"4157319535", "c":"xxx"});
+  //scenario 4
+  // correct data
+  //storage.write("data", {"s":"CLAVEL", "p":"4157319535", "c":"xxx"});
 
   if (storage.read("data") === undefined) {
     startAP(function(err, result) {
