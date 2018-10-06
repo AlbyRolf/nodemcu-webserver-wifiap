@@ -45,6 +45,32 @@ function sendPage(res) {
   res.end(d);
 }
 
+function byePage(res) {
+  // We're using ES6 Template Literals here to make the HTML easy to read.
+  var d = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wifi Client Configuration</title>
+  </head>
+  <body>
+    <style>
+      label {
+        display: block;
+        padding: 5px;
+      }
+    </style>
+    <h1>Wifi Client Configuration</h1>
+    <h2>You can now close this page</h2>
+  </body>
+  </html>`;
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "Content-Length": d.length
+  });
+  res.end(d);
+}
 // This handles the HTTP request itself and serves up the webpage or a
 // 404 not found page
 function onPageRequest(req, res) {
@@ -57,7 +83,7 @@ function onPageRequest(req, res) {
       req.headers["Content-Type"] == "application/x-www-form-urlencoded"
     )
       handlePOST(req, function() {
-        sendPage(res);
+        byePage(res);
       });
     else sendPage(res);
   } else {
@@ -83,12 +109,12 @@ function handlePOST(req, callback) {
       postData[els[0]] = decodeURIComponent(els[1]);
     });
     // finally our data is in postData
-    console.log(postData);
+    console.log("[handlePOST] ", postData);
     // do stuff with it!
     //
     if (postData.s) {
       setTimeout(function() {
-        wifi.startAP();
+        wifi.stopAP();
         wifiConnect(postData);
       }, 3000);
     }
@@ -106,12 +132,14 @@ function wifiConnect(config) {
     { password: config.p },
     function(err) {
       if (err) {
-        reconfig(err);
+        return reconfig(err);
       }
-      console.log("Successfully connected.");
+      console.log("[WifiConnect] Successfully connected.");
 
       var result = storage.write("data", config);
-      console.log(result ? "Data Saved" : "Failed To Save");
+      console.log(
+        "[WifiConnect] " + (result ? "Data Saved" : "Failed To Save")
+      );
     }
   );
 }
@@ -119,10 +147,10 @@ function wifiConnect(config) {
 function startAP() {
   wifi.startAP("espruino-esp8266", {}, function(err) {
     if (err) {
-      console.log(err);
+      console.log("[startAP] " + err);
     }
 
-    console.log("Successfully started AP.");
+    console.log("[startAP] Successfully started AP.");
     require("http")
       .createServer(onPageRequest)
       .listen(80);
@@ -150,7 +178,7 @@ function checkWifiStation() {
 }
 
 function reconfig(err) {
-  console.log(err, "Reconfiguring ...");
+  console.log(err, "[reconfig] Reconfiguring ...");
 
   startAP();
 }
@@ -179,7 +207,7 @@ function main() {
         if (err) {
           error(err);
         }
-        console.log("Station connected.");
+        console.log("[main] Station connected.");
       }
     );
   }
