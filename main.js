@@ -86,8 +86,12 @@ function handlePOST(req, callback) {
     console.log(postData);
     // do stuff with it!
     //
-    var result = storage.write("data", postData);
-    console.log(result ? "Data Saved" : "Failed To Save");
+    if (postData.s) {
+      setTimeout(function() {
+        wifi.startAP();
+        wifiConnect(postData);
+      }, 3000);
+    }
     //
     //
     // call our callback (to send the HTML result)
@@ -95,34 +99,60 @@ function handlePOST(req, callback) {
   });
 }
 
-function startWebserver() {
-  require("http")
-    .createServer(onPageRequest)
-    .listen(80);
-}
-
-function wifiConnect(ssid, password, cb) {
+function wifiConnect(config) {
+  checkWifiStation();
   wifi.connect(
-    ssid,
-    { password: password },
+    config.s,
+    { password: config.p },
     function(err) {
       if (err) {
-        return cb(err);
+        reconfig(err);
       }
       console.log("Successfully connected.");
-      return cb(null, true);
+
+      var result = storage.write("data", config);
+      console.log(result ? "Data Saved" : "Failed To Save");
     }
   );
 }
 
-function startAP(cb) {
+function startAP() {
   wifi.startAP("espruino-esp8266", {}, function(err) {
     if (err) {
-      return cb(err);
+      console.log(err);
     }
+
     console.log("Successfully started AP.");
-    return cb(null, true);
+    require("http")
+      .createServer(onPageRequest)
+      .listen(80);
   });
+}
+
+function checkWifiStation() {
+  var id = setInterval(function() {
+    wifi.getDetails(function(res) {
+      console.log("[checkWifiStation] ", res.status);
+      if (
+        res.status == "no_ap_found" ||
+        res.status == "wrong_password" ||
+        res.status == "off" ||
+        res.status == "connect_failed"
+      ) {
+        reconfig(res.status);
+        clearInterval(id);
+      }
+      if (obj.status == "connected") {
+        clearInterval(id);
+      }
+    });
+  }, 1000);
+}
+
+function reconfig(err) {
+  console.log(err, "Reconfiguring ...");
+
+  startAP();
 }
 
 function main() {
@@ -131,29 +161,29 @@ function main() {
   //storage.erase("data");
   //scenario 2
   // wrong password
-  storage.write("data", { s: "CLAVEL", p: "xxx", c: "xxx" });
+  //storage.write("data", { s: "CLAVEL", p: "xxx", c: "xxx" });
   //scenario 3
   // incorrect ssid
-  storage.write("data", { s: "CLAVEL1", p: "4157319535", c: "xxx" });
+  //storage.write("data", { s: "CLAVEL1", p: "4157319535", c: "xxx" });
   //scenario 4
   // correct data
-  storage.write("data", { s: "CLAVEL", p: "4157319535", c: "xxx" });
+  //storage.write("data", { s: "CLAVEL", p: "4157319535", c: "xxx" });
 
-  if (storage.read("data") === undefined) {
-    startAP(function(err, result) {
-      if (err) {
-        return console.log(err);
+  checkWifiStation();
+  var config = storage.readJSON("data");
+  if (config != undefined && config.s != undefined) {
+    wifi.connect(
+      config.s,
+      { password: config.p },
+      function(err) {
+        if (err) {
+          error(err);
+        }
+        console.log("Station connected.");
       }
-      startWebserver();
-    });
-  } else {
-    var config = storage.readJSON("data");
-    wifiConnect(config.s, config.p, function(err) {
-      if (err) {
-        return console.log(err);
-      }
-    });
+    );
   }
+  wifi.on("disconnected", reconfig);
 }
 
 main();
