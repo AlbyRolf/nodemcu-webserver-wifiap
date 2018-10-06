@@ -168,7 +168,7 @@ function checkWifiStation() {
         res.status == "off" ||
         res.status == "connect_failed"
       ) {
-        reconfig(res.status);
+        reconfig("[FROM checkWifiStation] " + res.status);
         clearInterval(id);
       }
       if (res.status == "connected") {
@@ -206,7 +206,7 @@ function main() {
       { password: config.p },
       function(err) {
         if (err) {
-          reconfig(err);
+          reconfig("[FROM main] " + err);
         }
         console.log("[main] Station connected.");
       }
