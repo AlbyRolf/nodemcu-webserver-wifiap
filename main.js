@@ -142,7 +142,7 @@ function checkWifiStation() {
         reconfig(res.status);
         clearInterval(id);
       }
-      if (obj.status == "connected") {
+      if (res.status == "connected") {
         clearInterval(id);
       }
     });
@@ -171,7 +171,7 @@ function main() {
 
   checkWifiStation();
   var config = storage.readJSON("data");
-  if (config != undefined && config.s != undefined) {
+  if (config !== undefined && config.s !== undefined) {
     wifi.connect(
       config.s,
       { password: config.p },
