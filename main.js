@@ -207,12 +207,16 @@ function main() {
       function(err) {
         if (err) {
           reconfig("[FROM main] " + err);
+          return;
         }
         console.log("[main] Station connected.");
       }
     );
   }
-  wifi.on("disconnected", reconfig);
+  wifi.on("disconnected", function() {
+    console.log("[wifi.on.disconnected]");
+    reconfig;
+  });
 }
 
 main();
