@@ -190,7 +190,7 @@ function main() {
   //storage.erase("data");
   //scenario 2
   // wrong password
-  //storage.write("data", { s: "CLAVEL", p: "xxx", c: "xxx" });
+  storage.write("data", { s: "CLAVEL", p: "xxx", c: "xxx" });
   //scenario 3
   // incorrect ssid
   //storage.write("data", { s: "CLAVEL1", p: "4157319535", c: "xxx" });
@@ -206,7 +206,11 @@ function main() {
       { password: config.p },
       function(err) {
         if (err) {
-          reconfig("[FROM main] " + err);
+          if (err === "auth_expire") {
+            wifi.disconnect();
+          } else {
+            reconfig("[FROM main] " + err);
+          }
           return;
         }
         console.log("[main] Station connected.");
@@ -214,8 +218,7 @@ function main() {
     );
   }
   wifi.on("disconnected", function() {
-    console.log("[wifi.on.disconnected]");
-    reconfig;
+    reconfig("[wifi.on.disconnected]");
   });
 }
 
