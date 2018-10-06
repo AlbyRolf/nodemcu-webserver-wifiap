@@ -1,5 +1,5 @@
-var wifi=require('Wifi');
-var storage=require('Storage');
+var wifi = require("Wifi");
+var storage = require("Storage");
 
 // The last data that was POSTed to us
 var postData = {};
@@ -86,8 +86,8 @@ function handlePOST(req, callback) {
     console.log(postData);
     // do stuff with it!
     //
-    var result = storage.write('data', postData);
-    console.log(result?'Data Saved':'Failed To Save');
+    var result = storage.write("data", postData);
+    console.log(result ? "Data Saved" : "Failed To Save");
     //
     //
     // call our callback (to send the HTML result)
@@ -101,46 +101,49 @@ function startWebserver() {
     .listen(80);
 }
 
-
 function wifiConnect(ssid, password, cb) {
-  wifi.connect(ssid, { password: password }, function(err) {
-    if(err){
-      return cb(err)
+  wifi.connect(
+    ssid,
+    { password: password },
+    function(err) {
+      if (err) {
+        return cb(err);
+      }
+      console.log("Successfully ");
+      return cb(null, true);
     }
-    console.log("Successfully ")
-    return cb(null,true)
-  });
+  );
 }
 
 function startAP(cb) {
   wifi.startAP("espruino-esp8266", {}, function(err) {
     if (err) {
-      return cb(err)
+      return cb(err);
     }
     console.log("Successfully started AP");
-    return cb(null,true)
+    return cb(null, true);
   });
 }
 
 function main() {
   //scenario 1
   // storage.read('data') == undefined
-  storage.erase('data')
-  
-  if (storage.read('data') == undefined) {
-    startAP( function(err,result) {
+  storage.erase("data");
+
+  if (storage.read("data") == undefined) {
+    startAP(function(err, result) {
       if (err) {
-        return console.log(err)
+        return console.log(err);
       }
       startWebserver();
-    })
+    });
   } else {
-    var config = storage.read('data')
-    wifiConnect(config.s, config.p, function(){
-      if(err) {
-        return console.log(err)
+    var config = storage.read("data");
+    wifiConnect(config.s, config.p, function() {
+      if (err) {
+        return console.log(err);
       }
-    })
+    });
   }
 }
 
